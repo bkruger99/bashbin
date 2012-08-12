@@ -1,0 +1,99 @@
+#!/bin/bash
+
+# This quick and dirty script will move all files required to start:
+# - symantec antivirus
+# - landesk
+# - iron mountain backup
+# into the directory: /Library.tottgleyit
+# If the script is invoked again, it will restore the contents of /Library.tottgleyit
+# and so re-enable the above applications on next restart
+#
+# Note: you should also check root's crontab and disable any symantec jobs there
+#
+
+STARTUPITEMS=( "cba8" "SymAutoProtect" "SMC" "NortonMissedTasks" "LANDesk" )
+LAUNCHDAEMONS=( "AgentService.plist" "com.landesk.vulscan.plist" "com.landesk.rotatelog.plist" "com.landesk.remote.plist" "com.landesk.pds2.plist" "com.landesk.pds.plist" "com.landesk.msgsys.plist" "com.landesk.ldwatch.plist" "com.landesk.ldtmc.plist" "com.landesk.cba8.plist" "com.landesk.broker.plist" )
+LAUNCHAGENTS=( "com.symantec.symsecondarylaunch.application.plist" "com.symantec.scannotification.application.plist" "com.symantec.savdiskmountnotify.application.plist" "com.symantec.quickmenusa.application.plist" "com.landesk.remotelaunch.plist" "com.landesk.ldusermenu.plist" "com.landesk.ldswprogress.plist" "com.landesk.hideScreen.plist" "com.connected.runonce.plist" )
+
+HIDE_DIR="/Library.toggleyit"
+STATE="Restoring"
+ACTION='sudo cp -rv'
+SOURCE=$HIDE_DIR
+DEST="/Library"
+if [ ! -d $HIDE_DIR ];then
+    STATE="Removing"
+    ACTION="sudo mv -v"
+    SOURCE="/Library"
+    DEST=$HIDE_DIR
+    sudo mkdir $HIDE_DIR
+    sudo mkdir "$HIDE_DIR/StartupItems"
+    sudo mkdir "$HIDE_DIR/LaunchDaemons"
+    sudo mkdir "$HIDE_DIR/LaunchAgents"
+fi
+echo -e "$STATE state\n"
+sudo -v
+
+for i in "${STARTUPITEMS[@]}"
+do
+    :
+    DIR="StartupItems"
+    CMD="$ACTION ${SOURCE}/$DIR/$i ${DEST}/$DIR/"
+    $CMD
+done
+
+for i in "${LAUNCHDAEMONS[@]}"
+do
+    :
+    DIR="LaunchDaemons"
+    CMD="$ACTION ${SOURCE}/$DIR/$i ${DEST}/$DIR/"
+    $CMD
+done
+
+for i in "${LAUNCHAGENTS[@]}"
+do
+    :
+    DIR="LaunchAgents"
+    CMD="$ACTION ${SOURCE}/$DIR/$i ${DEST}/$DIR/"
+    $CMD
+done
+
+if [ "$STATE" == "Restoring" ];then
+    sudo rm -rf $HIDE_DIR
+fi
+
+echo -e "Results:\n"
+ls -l /Library/LaunchDaemons /Library/LaunchDaemons /Library/StartupItems/
+echo -e "\ndone"
+
+# StartupItems:
+
+# /Library/StartupItems/cba8
+# /Library/StartupItems/SymAutoProtect
+# /Library/StartupItems/SMC
+# /Library/StartupItems/NortonMissedTasks
+# /Library/StartupItems/LANDesk
+
+# LaunchDaemons:
+
+# /Library/LaunchDaemons/com.landesk.vulscan.plist
+# /Library/LaunchDaemons/com.landesk.rotatelog.plist
+# /Library/LaunchDaemons/com.landesk.remote.plist
+# /Library/LaunchDaemons/com.landesk.pds2.plist
+# /Library/LaunchDaemons/com.landesk.pds.plist
+# /Library/LaunchDaemons/com.landesk.msgsys.plist
+# /Library/LaunchDaemons/com.landesk.ldwatch.plist
+# /Library/LaunchDaemons/com.landesk.ldtmc.plist
+# /Library/LaunchDaemons/com.landesk.cba8.plist
+# /Library/LaunchDaemons/com.landesk.broker.plist
+
+# LaunchAgents:
+
+# /Library/LaunchAgents/com.symantec.symsecondarylaunch.application.plist
+# /Library/LaunchAgents/com.symantec.scannotification.application.plist
+# /Library/LaunchAgents/com.symantec.savdiskmountnotify.application.plist
+# /Library/LaunchAgents/com.symantec.quickmenusa.application.plist
+# /Library/LaunchAgents/com.landesk.remotelaunch.plist
+# /Library/LaunchAgents/com.landesk.ldusermenu.plist
+# /Library/LaunchAgents/com.landesk.ldswprogress.plist
+# /Library/LaunchAgents/com.landesk.hideScreen.plist
+# /Library/LaunchAgents/com.connected.runonce.plist

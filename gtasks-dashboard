@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+TXTDEF='\033[0m'          # everything back to defaults
+TXTRED='\033[0;31;1m'     # red text
+TXTYEL='\033[0;33;1m'     # yellow text
+
+TOTALS=$(gtasks -b -L -sto | grep -A 2 "OVERALL")
+OVERDUE=$(echo $TOTALS | grep -o "Overdue: [0-9]\+;" | grep -o "[0-9]\+")
+TODAY=$(echo $TOTALS | grep -o "Due Today: [0-9]\+;" | grep -o "[0-9]\+")
+
+let TOTAL=OVERDUE+TODAY
+if [ $TOTAL != "0" ];then
+    if [ $TOTAL != "1" ];then
+        TP='s'
+    fi
+
+    if [ $OVERDUE != "0" ];then
+        OVERDUE_MSG="$TXTRED$OVERDUE overdue$TXTDEF"
+    fi
+    if [ $TODAY != "0" ];then
+        TODAY_MSG="$TXTYEL$TODAY due today$TXTDEF"
+    fi
+
+    if [ $OVERDUE != "0" ];then
+        MSG="$OVERDUE_MSG"
+        if [ $TODAY != "0" ];then
+            MSG="$MSG and $TODAY_MSG"
+        fi
+    elif [ $TODAY != "0" ];then
+        MSG="$TXTYEL$TODAY due today$TXTDEF"
+    fi
+
+    echo -e "You have $MSG task$TP"
+fi

@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# Script to search my dropbox Notes directory for files with certain opemeta tags
+# Files with the specified tag(s) are then put into an archive
+#
+if [ $# -ne 1 ]
+then
+	echo "Enter a tag to search for, with multiple tags in quotes"
+	exit
+fi
+if [ -f tagged-notes.tar ]
+then
+while true; do
+    read -p "tagged-notes.tar already exists, overwrite? " yn
+    case $yn in
+        [Yy]* ) rm tagged-notes.tar; break;;
+        [Nn]* ) echo "exiting"; exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+fi
+OWD=$PWD
+cd ~/dropbox
+echo "Searching for tags..."
+# the space after the initial grep is need to only target the tags
+openmeta -t -p Wiki/* | grep "$1 " | grep -o " Wiki/.*" | xargs tar -cvf $OWD/tagged-notes.tar
+if [ ! -f $OWD/tagged-notes.tar ]
+then
+echo "No notes tagged \"$1\" found"
+else
+echo "Notes added to archive at $OWD/tagged-notes.tar"
+fi
+#echo "sending tar to diffsky.com..."
+#scp tagged-notes.tar user@dserver:/directory/
+
+#local
+#openmeta -t -p Notes/* | grep "$1 " | grep -o " Notes/.*" | xargs tar -cvf $OWD/tagged-notes.tar
+#tar xvf tagged-notes.tar -C ~/Projects/wiki/

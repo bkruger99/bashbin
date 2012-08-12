@@ -1,0 +1,72 @@
+#!/bin/bash
+#
+usage()
+{
+cat << EOF
+
+Create a bare repo in Dropbox git and clone to ~/git
+
+gitbox <repo_name>
+
+OPTIONS:
+    -h      show this message
+    -c      create a repo of <name> (but gitbox can be called without options as above)
+EOF
+exit 1
+}
+
+while getopts "hc:" option
+do
+  case $option in
+    c) repo=$OPTARG;;
+    h) usage;;
+    *) usage;;
+  esac
+done
+
+repo=$1
+
+TXTDEF='\033[0m'          # everything back to defaults
+BAKPUR='\033[37;1;45m'    # purple background
+BAKRED='\033[37;1;41m'    # red background
+BAKGRN='\033[37;1;42m'    # green background
+
+GIT_DROPBOX_DIR=~/Dropbox/Git
+LOCAL_GIT_DIR=~/git
+git_dropbox_repo=$GIT_DROPBOX_DIR/${repo}.git
+local_dropbox_repo=$LOCAL_GIT_DIR/$repo
+
+if [ -d $git_dropbox_repo ]; then
+  echo -e "${BAKRED}[FAIL]${TXTDEF} Git bare repo $git_dropbox_repo already exists. Aborting."
+  exit 1
+fi
+if [ -d $local_dropbox_repo ]; then
+  echo -e "${BAKRED}[FAIL]${TXTDEF} Directory $local_dropbox_repo already exists. Aborting."
+  exit 1
+fi
+if [ -d $repo ]; then
+  echo -e "${BAKRED}[FAIL]${TXTDEF} Directory $repo already exists. Aborting."
+  exit 1
+fi
+
+echo -e "${BAKPUR}[NOTICE]${TXTDEF} Creating repo"
+git init $git_dropbox_repo --bare
+git clone -q $git_dropbox_repo $repo
+echo 'Cloned dropbox git repo into: '${local_dropbox_repo}
+
+OWD=$PWD
+if [ $PWD != "$HOME/git" ]; then
+  echo 'Creating symlink to '$repo
+  ln -s $OWD/$repo $HOME/git/$repo
+fi
+
+echo "Adding and committing README.md to the repo"
+cd $OWD/$repo
+echo "$repo repo" > README.md
+git add README.md
+git commit -m "initial commit"
+echo "Pushing to Dropbox git bare repo"
+git push origin master
+cd $OWD
+echo -e "${BAKGRN}[SUCCESS!]${TXTDEF}"
+exit 0
