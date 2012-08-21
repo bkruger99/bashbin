@@ -1,0 +1,43 @@
+#!/bin/bash
+
+BLACKHOLE_IP='50.116.43.47'
+DOMAINS=(\
+  "www.facebook.com" \
+  "facebook.com" \
+  "static.ak.fbcdn.net" \
+  "www.static.ak.fbcdn.net" \
+  "login.facebook.com" \
+  "www.login.facebook.com" \
+  "fbcdn.net" "www.fbcdn.net" \
+  "fbcdn.com" \
+  "www.fbcdn.com" \
+  "static.ak.connect.facebook.com" \
+  "www.static.ak.connect.facebook.com" \
+  "twitter.com" \
+  )
+
+function remove_domain() {
+    sudo sed -i '' "/$i/d" /etc/hosts
+}
+
+sudo sed -i '' "/# focus/d" /etc/hosts
+if [ "$1" == "block" ]; then
+    echo "Adding domains..."
+    echo "# focus" | sudo tee -a /etc/hosts
+else
+    echo "Removing domains..."
+fi
+
+for i in "${DOMAINS[@]}"
+do
+    :
+    if [ "$1" == "block" ]; then
+      remove_domain $i
+      echo "$BLACKHOLE_IP    $i" | sudo tee -a /etc/hosts
+    else
+      remove_domain $i
+    fi
+done
+
+echo -e "Clearing host DNS cache"
+dscacheutil -flushcache
