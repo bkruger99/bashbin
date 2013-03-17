@@ -1,0 +1,17 @@
+#!/bin/bash
+
+TASK=$1
+if [ -z "$2" ]; then
+  LIST="scratch"
+else
+  LIST=$2
+fi
+
+TMP=/tmp/tpadd.$$
+LIST=$HOME/tasks/$LIST.taskpaper
+
+echo "- $TASK" > $TMP
+if [ -f $LIST ]; then
+  cat $LIST >> $TMP
+fi
+mv $TMP $LIST
