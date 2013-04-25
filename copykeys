@@ -1,0 +1,56 @@
+#!/bin/bash
+usage()
+{
+cat << EOF
+
+update authorized_keys on remote server
+
+OPTIONS:
+    -p      remote ssh port (defaults to 22)
+    -u      remote user (defaults to $USER)
+    -h      remote host
+    -k      key (defaults to $HOME/.ssh/id_rsa.pub)
+
+EOF
+exit 1
+}
+
+KEY="$HOME/.ssh/id_rsa.pub"
+PORT=22
+USERNAME=$USER
+
+while getopts "p:u:h:k:h" option
+do
+  case $option in
+    h) HOST=$OPTARG;;
+    k) OTHER_KEY=$OPTARG;;
+    p) PORT=$OPTARG;;
+    u) USER=$OPTARG;;
+    h) usage;;
+    *) usage;;
+  esac
+done
+
+if [ -z "$HOST" ];then
+  echo "fatal: missing host"
+  usage
+  exit 1
+fi
+
+if [ ! -z "$OTHER_KEY" ];then
+  if [ ! -f "$OTHER_KEY" ];then
+    echo "fatal: key not found"
+    exit 1
+  fi
+  if [ `stat -f '%A' "$HOME/.ssh/$OTHER_KEY"` -eq 600 ];then
+    echo "fatal: non public key specified"
+    exit 1
+  fi
+  KEY="$OTHER_KEY"
+fi
+
+AUTH=$(cat "$KEY")
+AUTH_KEYS="\$HOME/.ssh/authorized_keys"
+CMD="mkdir -p ~/.ssh; COUNT=\`grep \"$AUTH\" $AUTH_KEYS | wc -l\`; if [ \"\$COUNT\" == \"0\" ];then echo \"$AUTH\" >> $AUTH_KEYS;fi"
+ssh -p $PORT $USERNAME@$HOST "$CMD"
+echo "$HOST updated"
