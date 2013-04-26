@@ -6,9 +6,9 @@ cat << EOF
 update authorized_keys on remote server
 
 OPTIONS:
+    -h      remote host
     -p      remote ssh port (defaults to 22)
     -u      remote user (defaults to $USER)
-    -h      remote host
     -k      key (defaults to $HOME/.ssh/id_rsa.pub)
 
 EOF
@@ -39,11 +39,11 @@ fi
 
 if [ ! -z "$OTHER_KEY" ];then
   if [ ! -f "$OTHER_KEY" ];then
-    echo "fatal: key not found"
+    echo "fatal: key not found at $KEY"
     exit 1
   fi
   if [ `stat -f '%A' "$HOME/.ssh/$OTHER_KEY"` -eq 600 ];then
-    echo "fatal: non public key specified"
+    echo "fatal: possible non public key specified"
     exit 1
   fi
   KEY="$OTHER_KEY"
@@ -51,6 +51,7 @@ fi
 
 AUTH=$(cat "$KEY")
 AUTH_KEYS="\$HOME/.ssh/authorized_keys"
+# command to add key to authorized_keys (only if not already present)
 CMD="mkdir -p ~/.ssh; COUNT=\`grep \"$AUTH\" $AUTH_KEYS | wc -l\`; if [ \"\$COUNT\" == \"0\" ];then echo \"$AUTH\" >> $AUTH_KEYS;fi"
 ssh -p $PORT $USERNAME@$HOST "$CMD"
 echo "$HOST updated"
