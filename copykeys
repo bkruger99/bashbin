@@ -52,6 +52,6 @@ fi
 AUTH=$(cat "$KEY")
 AUTH_KEYS="\$HOME/.ssh/authorized_keys"
 # command to add key to authorized_keys (only if not already present)
-CMD="mkdir -p ~/.ssh; COUNT=\`grep \"$AUTH\" $AUTH_KEYS | wc -l\`; if [ \"\$COUNT\" == \"0\" ];then echo \"$AUTH\" >> $AUTH_KEYS;fi"
+CMD="mkdir -p ~/.ssh; COUNT=\`grep \"$AUTH\" $AUTH_KEYS 2> /dev/null | wc -l\`; if [ \"\$COUNT\" == \"0\" ];then echo \"$AUTH\" >> $AUTH_KEYS;fi"
 ssh -p $PORT $USERNAME@$HOST "$CMD"
 echo "$HOST updated"
