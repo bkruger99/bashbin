@@ -25,7 +25,7 @@ do
     h) HOST=$OPTARG;;
     k) OTHER_KEY=$OPTARG;;
     p) PORT=$OPTARG;;
-    u) USER=$OPTARG;;
+    u) USERNAME=$OPTARG;;
     h) usage;;
     *) usage;;
   esac
