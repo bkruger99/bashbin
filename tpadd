@@ -8,7 +8,7 @@ else
 fi
 
 TMP=/tmp/tpadd.$$
-LIST=$HOME/tasks/$LIST.taskpaper
+LIST=$HOME/Dropbox/Apps/Taskpaper/$LIST.taskpaper
 
 echo "- $TASK" > $TMP
 if [ -f $LIST ]; then
