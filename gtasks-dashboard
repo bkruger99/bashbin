@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+# example crontab:
+# 0,30 * * * * source /Users/mhadley/.bashrc; gtasks-dashboard > /Users/mhadley/.gtasks/dashboard
+#
 TXTDEF='\033[0m'          # everything back to defaults
 TXTRED='\033[0;31;1m'     # red text
 TXTYEL='\033[0;33;1m'     # yellow text
