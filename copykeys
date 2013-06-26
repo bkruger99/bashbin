@@ -42,7 +42,7 @@ if [ ! -z "$OTHER_KEY" ];then
     echo "fatal: key not found at $KEY"
     exit 1
   fi
-  if [ `stat -f '%A' "$HOME/.ssh/$OTHER_KEY"` -eq 600 ];then
+  if [ `stat -f '%A' "$OTHER_KEY"` -eq 600 ];then
     echo "fatal: possible non public key specified"
     exit 1
   fi
