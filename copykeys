@@ -3,13 +3,14 @@ usage()
 {
 cat << EOF
 
-update authorized_keys on remote server
+update authorized_keys on, or copy over a public key to, a remote server
 
 OPTIONS:
     -h      remote host
     -p      remote ssh port (defaults to 22)
     -u      remote user (defaults to $USER)
     -k      key (defaults to $HOME/.ssh/id_rsa.pub)
+    -l      full path location to copy key to insted of updating authorized_keys file
 
 EOF
 exit 1
@@ -19,13 +20,14 @@ KEY="$HOME/.ssh/id_rsa.pub"
 PORT=22
 USERNAME=$USER
 
-while getopts "p:u:h:k:h" option
+while getopts "p:u:h:k:l:h" option
 do
   case $option in
     h) HOST=$OPTARG;;
     k) OTHER_KEY=$OPTARG;;
     p) PORT=$OPTARG;;
     u) USERNAME=$OPTARG;;
+    l) LOCATION=$OPTARG;;
     h) usage;;
     *) usage;;
   esac
@@ -50,8 +52,12 @@ if [ ! -z "$OTHER_KEY" ];then
 fi
 
 AUTH=$(cat "$KEY")
-AUTH_KEYS="\$HOME/.ssh/authorized_keys"
-# command to add key to authorized_keys (only if not already present)
-CMD="mkdir -p ~/.ssh; COUNT=\`grep \"$AUTH\" $AUTH_KEYS 2> /dev/null | wc -l\`; if [ \"\$COUNT\" == \"0\" ];then echo \"$AUTH\" >> $AUTH_KEYS;fi"
+if [ -z "LOCATION" ];then
+  AUTH_KEYS="\$HOME/.ssh/authorized_keys"
+  # command to add key to authorized_keys (only if not already present)
+  CMD="mkdir -p ~/.ssh; COUNT=\`grep \"$AUTH\" $AUTH_KEYS 2> /dev/null | wc -l\`; if [ \"\$COUNT\" == \"0\" ];then echo \"$AUTH\" >> $AUTH_KEYS;fi"
+else
+  CMD="mkdir -p ~/.ssh;echo \"$AUTH\" >> $LOCATION;chmod 644 $LOCATION"
+fi
 ssh -p $PORT $USERNAME@$HOST "$CMD"
 echo "$HOST updated"
