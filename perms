@@ -1,9 +1,0 @@
-#!/bin/bash
-#
-#  display file permissions in octal format
-#
-INPUT=*
-if [ ! -z "$1" ]; then
-    INPUT=$@
-fi
-stat -f '%A %N' $INPUT
