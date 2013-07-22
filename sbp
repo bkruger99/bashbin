@@ -2,4 +2,8 @@
 #
 #  simple script to open sublime text projects from command line
 #
-sb --project $HOME/.sbp/$1.sublime-project
+if [ -z "$1" ];then
+  echo "error - no project specified"
+  exit 1
+fi
+sb -n --project $HOME/.sbp/$1.sublime-project
